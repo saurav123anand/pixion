@@ -7,18 +7,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAddDto {
-    @NotEmpty
-    @Size(min = 4,message = "firstName should have at least 4 characters")
+public class UserUpdateDto {
     private String firstName;
     private String lastName;
     @Email(message = "Email is invalid")
     private String email;
     private String password;
-    private Date createdTimeStamp;
+    private String profileImageName;
+    private String bio;
+    private String instaUrl;
+    private String xurl;
+    private String portfolioUrl;
+    private String linkedinUrl;
+    private AddressDto address;
 }

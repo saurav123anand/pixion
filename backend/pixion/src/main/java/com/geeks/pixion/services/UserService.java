@@ -15,4 +15,5 @@ public interface UserService {
     ApiResponse deleteUser(Long userId) throws ResourceNotFoundException;
     UserPaginationResponse getUsersByPages(Integer pageNumber, Integer pageSize);
     UserPaginationResponse getSortedUsersByPages(Integer pageNumber, Integer pageSize,String sortBy,String sortDir);
+    List<UserResponseDto> searchUsers(String keyword);
 }

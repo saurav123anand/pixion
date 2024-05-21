@@ -55,4 +55,10 @@ public class UserController {
                                                        String sortBy, @RequestParam(value = "sortDir",defaultValue ="asc",required = false) String sortDir) throws ResourceNotFoundException {
         return userService.getSortedUsersByPages(pageNumber,pageSize,sortBy,sortDir);
     }
+
+    @GetMapping("/search/{keywords}")
+    public ResponseEntity<List<UserResponseDto>> searchPostByFirstName(@PathVariable String keywords) {
+        List<UserResponseDto> response = userService.searchUsers(keywords);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

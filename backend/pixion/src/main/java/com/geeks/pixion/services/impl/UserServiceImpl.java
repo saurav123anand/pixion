@@ -101,4 +101,10 @@ public class UserServiceImpl implements UserService {
         return userPaginationResponse;
     }
 
+    @Override
+    public List<UserResponseDto> searchUsers(String keyword) {
+        List<User> users = userRepository.findByFirstNameContaining(keyword);
+        return users.stream().map(user -> modelMapper.map(user,UserResponseDto.class)).collect(Collectors.toList());
+    }
+
 }

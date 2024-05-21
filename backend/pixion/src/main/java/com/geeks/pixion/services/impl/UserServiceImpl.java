@@ -1,6 +1,4 @@
 package com.geeks.pixion.services.impl;
-
-import com.geeks.pixion.entities.Address;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
@@ -15,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -71,11 +69,36 @@ public class UserServiceImpl implements UserService {
         return apiResponse;
     }
 
-    public List<UserResponseDto> getUsersByPages(Integer pageNumber,Integer pageSize){
+    public UserPaginationResponse getUsersByPages(Integer pageNumber,Integer pageSize){
         Pageable pageable= PageRequest.of(pageNumber,pageSize);
         Page<User> pageUsers = userRepository.findAll(pageable);
         List<User> allUsersOfPage = pageUsers.getContent();
-        return allUsersOfPage.stream().map(user -> modelMapper.map(user,UserResponseDto.class)).collect(Collectors.toList());
+        List<UserResponseDto> users = allUsersOfPage.stream().map(user -> modelMapper.map(user, UserResponseDto.class)).collect(Collectors.toList());
+        UserPaginationResponse userPaginationResponse=new UserPaginationResponse();
+        userPaginationResponse.setUsers(users);
+        userPaginationResponse.setPageNumber(pageUsers.getNumber());
+        userPaginationResponse.setPageSize(pageUsers.getSize());
+        userPaginationResponse.setTotalElements(pageUsers.getTotalElements());
+        userPaginationResponse.setTotalPages(pageUsers.getTotalPages());
+        userPaginationResponse.setLastPage(pageUsers.isLast());
+        return userPaginationResponse;
+    }
+
+    @Override
+    public UserPaginationResponse getSortedUsersByPages(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        Sort sort=sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        Page<User> pageUsers = userRepository.findAll(pageable);
+        List<User> allUsersOfPage = pageUsers.getContent();
+        List<UserResponseDto> users = allUsersOfPage.stream().map(user -> modelMapper.map(user, UserResponseDto.class)).collect(Collectors.toList());
+        UserPaginationResponse userPaginationResponse=new UserPaginationResponse();
+        userPaginationResponse.setUsers(users);
+        userPaginationResponse.setPageNumber(pageUsers.getNumber());
+        userPaginationResponse.setPageSize(pageUsers.getSize());
+        userPaginationResponse.setTotalElements(pageUsers.getTotalElements());
+        userPaginationResponse.setTotalPages(pageUsers.getTotalPages());
+        userPaginationResponse.setLastPage(pageUsers.isLast());
+        return userPaginationResponse;
     }
 
 }

@@ -1,10 +1,7 @@
 package com.geeks.pixion.controllers;
 
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
-import com.geeks.pixion.payloads.ApiResponse;
-import com.geeks.pixion.payloads.UserAddDto;
-import com.geeks.pixion.payloads.UserResponseDto;
-import com.geeks.pixion.payloads.UserUpdateDto;
+import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +41,18 @@ public class UserController {
     }
 
     // pagination
-    @GetMapping("/")
-    public List<UserResponseDto> findAllByPages(@RequestParam(value = "pageNumber",defaultValue ="1",required = false)
-            Integer pageNumber,@RequestParam(value = "pageSize",defaultValue ="3",required = false) Integer pageSize ) throws ResourceNotFoundException {
+    @GetMapping("/pagination")
+    public UserPaginationResponse findAllByPages(@RequestParam(value = "pageNumber",defaultValue ="0",required = false)
+            Integer pageNumber, @RequestParam(value = "pageSize",defaultValue ="10",required = false) Integer pageSize ) throws ResourceNotFoundException {
         return userService.getUsersByPages(pageNumber,pageSize);
+    }
+
+    // pagination with sorting
+    @GetMapping("/pagination/sorted")
+    public UserPaginationResponse findAllSortedByPages(@RequestParam(value = "pageNumber",defaultValue ="0",required = false)
+                                                 Integer pageNumber, @RequestParam(value = "pageSize",defaultValue ="10",required = false) Integer pageSize,
+                                                       @RequestParam(value = "sortBy",defaultValue ="userId",required = false)
+                                                       String sortBy, @RequestParam(value = "sortDir",defaultValue ="asc",required = false) String sortDir) throws ResourceNotFoundException {
+        return userService.getSortedUsersByPages(pageNumber,pageSize,sortBy,sortDir);
     }
 }

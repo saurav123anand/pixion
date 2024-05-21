@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 public class UserUpdateDto {
     private String firstName;
     private String lastName;
-    @Email(message = "Email is invalid")
     private String email;
     private String password;
     private String profileImageName;

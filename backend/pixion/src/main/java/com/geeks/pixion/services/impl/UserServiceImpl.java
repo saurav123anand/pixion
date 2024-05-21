@@ -2,21 +2,25 @@ package com.geeks.pixion.services.impl;
 
 import com.geeks.pixion.entities.Address;
 import com.geeks.pixion.entities.User;
+import com.geeks.pixion.exceptions.EmptyFieldException;
+import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
-import com.geeks.pixion.payloads.AddressDto;
-import com.geeks.pixion.payloads.UserAddDto;
-import com.geeks.pixion.payloads.UserResponseDto;
-import com.geeks.pixion.payloads.UserUpdateDto;
+import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.repositiories.AddressRepository;
 import com.geeks.pixion.repositiories.UserRepository;
 import com.geeks.pixion.services.UserService;
 import com.geeks.pixion.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,35 +37,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto createUser(UserAddDto userAddDto) {
         User user = modelMapper.map(userAddDto, User.class);
+        user.setCreatedTimeStamp(new Date());
         User saved = userRepository.save(user);
         return modelMapper.map(saved,UserResponseDto.class);
     }
 
     @Override
-    public UserResponseDto updateUser(UserUpdateDto userDto, Long userId) throws ResourceNotFoundException {
+    public UserResponseDto updateUser(UserUpdateDto userDto, Long userId) throws InvalidFieldValue, EmptyFieldException, ResourceNotFoundException {
         User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
-
-        if (userDto.getAddress()!=null){
-            Address address=user.getAddress();
-            if(address!=null){
-                // update existing address
-                address.setCity(userDto.getAddress().getCity());
-                address.setStreet(userDto.getAddress().getStreet());
-                address.setCountry(userDto.getAddress().getCountry());
-            }
-            else{
-                // add new address
-                AddressDto addressDto =userDto.getAddress();
-                Address newAddress=new Address();
-                newAddress.setUser(user);
-                newAddress.setCity(addressDto.getCity());
-                newAddress.setStreet(addressDto.getStreet());
-                newAddress.setCountry(addressDto.getCountry());
-                user.setAddress(newAddress);
-            }
-        }
-        User save = userRepository.save(user);
-        return utils.convertUserToUserResponse(user);
+        user=utils.validateAndSetFieldValue(userDto,user);
+        userRepository.save(user);
+//        return utils.convertUserToUserResponse(user);
+        return modelMapper.map(user, UserResponseDto.class);
     }
 
     @Override
@@ -73,12 +60,22 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponseDto> getAllUsers() {
        List<User> users= userRepository.findAll();
-       return users.stream().map(user -> utils.convertUserToUserResponse(user)).collect(Collectors.toList());
+       return users.stream().map(user -> modelMapper.map(user,UserResponseDto.class)).collect(Collectors.toList());
     }
 
     @Override
-    public void deleteUser(Long userId) throws ResourceNotFoundException {
+    public ApiResponse deleteUser(Long userId) throws ResourceNotFoundException {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
         userRepository.delete(user);
+        ApiResponse apiResponse=new ApiResponse("User sucessfully deleted for user id"+userId,true, HttpStatus.OK.value());
+        return apiResponse;
     }
+
+    public List<UserResponseDto> getUsersByPages(Integer pageNumber,Integer pageSize){
+        Pageable pageable= PageRequest.of(pageNumber,pageSize);
+        Page<User> pageUsers = userRepository.findAll(pageable);
+        List<User> allUsersOfPage = pageUsers.getContent();
+        return allUsersOfPage.stream().map(user -> modelMapper.map(user,UserResponseDto.class)).collect(Collectors.toList());
+    }
+
 }

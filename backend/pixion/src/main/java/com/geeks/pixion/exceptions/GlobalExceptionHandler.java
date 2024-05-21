@@ -17,6 +17,12 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler({HttpRequestMethodNotSupportedException.class, ConstraintViolationException.class,InvalidFieldValue.class, EmptyFieldException.class})
+    public ResponseEntity<ApiResponse> exceptionHandler(Exception exception){
+        String message=exception.getMessage();
+        ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.BAD_REQUEST.value());
+        return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
+    }
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiResponse> resourceNotFoundExceptionHandler(ResourceNotFoundException resourceNotFoundException){
         String message=resourceNotFoundException.getMessage();
@@ -33,11 +39,5 @@ public class GlobalExceptionHandler {
         });
         return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
 
-    }
-    @ExceptionHandler({HttpRequestMethodNotSupportedException.class, ConstraintViolationException.class,Exception.class})
-    public ResponseEntity<ApiResponse> exceptionHandler(Exception exception){
-        String message=exception.getMessage();
-        ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(apiResponse,HttpStatus.BAD_REQUEST);
     }
 }

@@ -1,10 +1,12 @@
 package com.geeks.pixion.utils;
 
 import com.geeks.pixion.entities.Address;
+import com.geeks.pixion.entities.Category;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.payloads.AddressDto;
+import com.geeks.pixion.payloads.CategoryAddDto;
 import com.geeks.pixion.payloads.UserResponseDto;
 import com.geeks.pixion.payloads.UserUpdateDto;
 import org.springframework.stereotype.Component;
@@ -88,4 +90,16 @@ public class Utils {
         user.setLinkedinUrl(userDto.getLinkedinUrl());
         return user;
     }
+
+    public Category validateAndSetFieldValue(CategoryAddDto request, Category category){
+        if(!request.getTitle().trim().isEmpty() &&  !request.getTitle().equals(category.getCategoryTitle())){
+            category.setCategoryTitle(request.getTitle());
+        }
+        if(!request.getDescription().trim().isEmpty() && !request.getDescription().equals(category.getCategoryDescription())){
+            category.setCategoryDescription(request.getDescription());
+        }
+
+        return  category;
+    }
+
 }

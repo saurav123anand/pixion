@@ -1,5 +1,6 @@
 package com.geeks.pixion.controllers;
 
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.services.UserService;
@@ -42,17 +43,17 @@ public class UserController {
 
     // pagination
     @GetMapping("/pagination")
-    public UserPaginationResponse findAllByPages(@RequestParam(value = "pageNumber",defaultValue ="0",required = false)
-            Integer pageNumber, @RequestParam(value = "pageSize",defaultValue ="10",required = false) Integer pageSize ) throws ResourceNotFoundException {
+    public UserPaginationResponse findAllByPages(@RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
+            Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize ) throws ResourceNotFoundException {
         return userService.getUsersByPages(pageNumber,pageSize);
     }
 
     // pagination with sorting
     @GetMapping("/pagination/sorted")
-    public UserPaginationResponse findAllSortedByPages(@RequestParam(value = "pageNumber",defaultValue ="0",required = false)
-                                                 Integer pageNumber, @RequestParam(value = "pageSize",defaultValue ="10",required = false) Integer pageSize,
-                                                       @RequestParam(value = "sortBy",defaultValue ="userId",required = false)
-                                                       String sortBy, @RequestParam(value = "sortDir",defaultValue ="asc",required = false) String sortDir) throws ResourceNotFoundException {
+    public UserPaginationResponse findAllSortedByPages(@RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
+                                                 Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize,
+                                                       @RequestParam(value = "sortBy",defaultValue =Constants.SORT_BY,required = false)
+                                                       String sortBy, @RequestParam(value = "sortDir",defaultValue =Constants.SORT_DIR,required = false) String sortDir) throws ResourceNotFoundException {
         return userService.getSortedUsersByPages(pageNumber,pageSize,sortBy,sortDir);
     }
 

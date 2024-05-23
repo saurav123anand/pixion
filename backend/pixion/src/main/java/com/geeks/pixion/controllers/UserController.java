@@ -1,5 +1,6 @@
 package com.geeks.pixion.controllers;
 
+import com.amazonaws.services.s3.AmazonS3;
 import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
@@ -7,24 +8,32 @@ import com.geeks.pixion.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.print.attribute.standard.Media;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@CrossOrigin("*")
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private AmazonS3 s3Service;
 
     @PostMapping("/create")
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserAddDto userAddDto){
         UserResponseDto user = userService.createUser(userAddDto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
-    @PutMapping("/update")
-    public UserResponseDto updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto, @RequestParam Long userId) throws Exception {
+    @PutMapping(value = "/update/{userId}",consumes = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE,MediaType.APPLICATION_JSON_VALUE})
+    public UserResponseDto updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto, @PathVariable Long userId) throws Exception {
         return userService.updateUser(userUpdateDto,userId);
     }
     @GetMapping("/all")
@@ -61,5 +70,9 @@ public class UserController {
     public ResponseEntity<List<UserResponseDto>> searchPostByFirstName(@PathVariable String keywords) {
         List<UserResponseDto> response = userService.searchUsers(keywords);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    @PutMapping("/upload/{userId}")
+    public UserResponseDto uploadImage(@PathVariable Long userId,@RequestParam("image") MultipartFile image) throws IOException, ResourceNotFoundException {
+         return userService.imageUploadToS3AndUpdateUser(userId,image);
     }
 }

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Post Approved</title>
+</head>
+<header>
+    <p>
+        <font size="3">
+            Hi <span th:text="${receiverName}"></span> <br><br><br>
+            Greeting from <span th:text="${senderName}"></span>,<br><br>
+            Your post has been approved by admin and now your post is live on our website.
+            <br><br>
+
+            <br>
+
+            Thanks,<br>
+            <span th:text="${senderName}"></span> Team
+        </font>
+
+    </p>
+</header>
+</html>

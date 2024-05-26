@@ -29,7 +29,7 @@ public class Utils {
             }
         }
         user.setLastName(userDto.getLastName());
-        if(userDto.getEmail().trim().isEmpty()){
+        if(user.getEmail()==null || userDto.getEmail().trim().isEmpty()){
             throw new EmptyFieldException("email is empty");
         }
         else{

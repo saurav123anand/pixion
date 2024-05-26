@@ -14,6 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserAddDto {
+    private Long userId;
     @NotEmpty
     @Size(min = 4,message = "firstName should have at least 4 characters")
     private String firstName;

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Post sent for Approval</title>
+</head>
+<header>
+    <p>
+        <font size="3">
+            Thank you <span th:text="${receiverName}"></span> for uploading on
+            <span th:text="${senderName}"></span> and Post is sent for Approval. We will communicate you
+            through email for further update. <br><br><br>
+
+            Thanks,<br>
+            <span th:text="${senderName}"></span> Team
+        </font>
+
+    </p>
+</header>
+</html>

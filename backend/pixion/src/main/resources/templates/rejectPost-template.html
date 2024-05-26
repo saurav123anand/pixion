@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>Post Rejected</title>
+</head>
+<header>
+    <p>
+        <font size="3">
+            Hi <span th:text="${receiverName}"></span> <br><br><br>
+            Greeting from <span th:text="${senderName}"></span>,<br><br>
+            We are sorry to inform you that your post is rejected since it was not meeting all the Post Specifications. <br><br>
+            All the best for future uploads.
+            <br><br>
+            <br>
+
+            Thanks,<br>
+            <span th:text="${senderName}"></span> Team
+        </font>
+
+    </p>
+</header>
+</html>

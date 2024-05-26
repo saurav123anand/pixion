@@ -1,16 +1,12 @@
 package com.geeks.pixion.services.impl;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
-import com.geeks.pixion.repositiories.AddressRepository;
 import com.geeks.pixion.repositiories.UserRepository;
+import com.geeks.pixion.services.S3Service;
 import com.geeks.pixion.services.UserService;
 import com.geeks.pixion.utils.Utils;
 import org.modelmapper.ModelMapper;
@@ -24,7 +20,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -37,8 +32,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
-    private AddressRepository addressRepository;
-    @Autowired
     private Utils utils;
     @Autowired
     private AmazonS3 amazonS3;
@@ -48,6 +41,8 @@ public class UserServiceImpl implements UserService {
     private String fileRoot1;
     @Value("${s3.region}")
     private String region;
+    @Autowired
+    private S3Service s3Service;
 
     @Override
     public UserResponseDto createUser(UserAddDto userAddDto) {
@@ -89,7 +84,7 @@ public class UserServiceImpl implements UserService {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
         String imageKey=user.getProfileImageName().substring(user.getProfileImageName().lastIndexOf("/")+1);
         System.out.println("image key is "+imageKey);
-        deleteImage(imageKey);
+        s3Service.deleteImage(imageKey,fileRoot1);
         userRepository.delete(user);
         ApiResponse apiResponse=new ApiResponse("User sucessfully deleted for user id"+userId,true, HttpStatus.OK.value());
         return apiResponse;
@@ -147,22 +142,22 @@ public class UserServiceImpl implements UserService {
 //        }
 //    }
     
-    public String uploadImage(String key,InputStream inputStream,long contentLength,String contentType){
-        ObjectMetadata metadata=new ObjectMetadata();
-        metadata.setContentLength(contentLength);
-        metadata.setContentType(contentType);
-        PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName,fileRoot1+"/"+key,inputStream,metadata)
-                .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
-        amazonS3.putObject(putObjectRequest);
-        return getS3Url(key);
-    }
-    public String getS3Url(String key){
-        return String.format("https://%s.s3.%s.amazonaws.com/%s",bucketName,region,fileRoot1+"/"+key);
-    }
-    public void deleteImage(String key){
-        System.out.println(bucketName+fileRoot1+"/"+key);
-        amazonS3.deleteObject(new DeleteObjectRequest(bucketName,fileRoot1+"/"+key));
-    }
+//    public String uploadImage(String key,InputStream inputStream,long contentLength,String contentType){
+//        ObjectMetadata metadata=new ObjectMetadata();
+//        metadata.setContentLength(contentLength);
+//        metadata.setContentType(contentType);
+//        PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName,fileRoot1+"/"+key,inputStream,metadata)
+//                .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
+//        amazonS3.putObject(putObjectRequest);
+//        return getS3Url(key);
+//    }
+//    public String getS3Url(String key){
+//        return String.format("https://%s.s3.%s.amazonaws.com/%s",bucketName,region,fileRoot1+"/"+key);
+//    }
+//    public void deleteImage(String key){
+//        System.out.println(bucketName+fileRoot1+"/"+key);
+//        amazonS3.deleteObject(new DeleteObjectRequest(bucketName,fileRoot1+"/"+key));
+//    }
 
     public UserResponseDto imageUploadToS3AndUpdateUser(Long userId,MultipartFile image) throws ResourceNotFoundException, IOException {
         User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
@@ -171,7 +166,7 @@ public class UserServiceImpl implements UserService {
             assert key != null;
             key=key.replaceAll(" ","");
             String modifiedFileName = UUID.randomUUID().toString() + key.substring(0,key.lastIndexOf(".")) + key.substring(key.lastIndexOf("."));
-            String imageUrl=uploadImage(modifiedFileName,image.getInputStream(),image.getSize(),image.getContentType());
+            String imageUrl= s3Service.uploadMediaToS3(modifiedFileName,image.getInputStream(),image.getSize(),image.getContentType(),fileRoot1);
             user.setProfileImageName(imageUrl);
         }
         userRepository.save(user);

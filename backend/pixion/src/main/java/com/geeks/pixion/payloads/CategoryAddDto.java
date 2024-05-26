@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryAddDto {
+    private Long categoryId;
     @NotEmpty
     @Size(min = 4,message = "title should have at least 4 characters")
     private String title;

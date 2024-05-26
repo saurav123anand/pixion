@@ -43,15 +43,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category getCategoryById(Long categoryId) throws ResourceNotFoundException {
-        Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category not found for category id "+categoryId));
-        return category;
+        return categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category not found for category id "+categoryId));
     }
 
     @Override
     public ApiResponse deleteCategory(Long id) throws ResourceNotFoundException {
         Category category=categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("category not found for category id "+id));
         categoryRepository.delete(category);
-        return new ApiResponse("Category sucessfully deleted for user id"+id,true, HttpStatus.OK.value());
+        return new ApiResponse("Category successfully deleted for user id"+id,true, HttpStatus.OK.value());
     }
 
 }

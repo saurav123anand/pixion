@@ -43,8 +43,7 @@ public class UserController {
     }
     @DeleteMapping("/byId/{userId}")
     public ApiResponse deleteById(@PathVariable Long userId) throws ResourceNotFoundException {
-        ApiResponse response=userService.deleteUser(userId);
-        return response;
+        return userService.deleteUser(userId);
     }
 
     // pagination

@@ -39,11 +39,6 @@ public class AppConfig {
     private String debug;
 
     @Bean
-    public ModelMapper modelMapper(){
-        return new ModelMapper();
-    }
-
-    @Bean
     public AmazonS3 amazonS3(){
         return AmazonS3ClientBuilder.standard().withRegion(region).
                 withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey,accessSecret)))

@@ -1,5 +1,4 @@
 package com.geeks.pixion.services.impl;
-import com.amazonaws.services.s3.AmazonS3;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
@@ -33,8 +32,6 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper;
     @Autowired
     private Utils utils;
-    @Autowired
-    private AmazonS3 amazonS3;
     @Value("${s3.bucketName}")
     private String bucketName;
     @Value("${s3.fileRoot1}")
@@ -48,7 +45,6 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto createUser(UserAddDto userAddDto) {
         User user = modelMapper.map(userAddDto, User.class);
         user.setCreatedTimeStamp(new Date());
-        //user.setProfileImageName();
         User saved = userRepository.save(user);
         return modelMapper.map(saved,UserResponseDto.class);
     }
@@ -58,12 +54,6 @@ public class UserServiceImpl implements UserService {
         User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
         user=utils.validateAndSetFieldValue(userDto,user);
         userRepository.save(user);
-//        if(image!=null && !image.isEmpty()){
-//            String key=image.getOriginalFilename();
-//            String imageUrl=uploadImage(key,image.getInputStream(),image.getSize(),image.getContentType());
-//            user.setProfileImageName(imageUrl);
-//        }
-//        return utils.convertUserToUserResponse(user);
         return modelMapper.map(user, UserResponseDto.class);
     }
 
@@ -86,8 +76,7 @@ public class UserServiceImpl implements UserService {
         System.out.println("image key is "+imageKey);
         s3Service.deleteImage(imageKey,fileRoot1);
         userRepository.delete(user);
-        ApiResponse apiResponse=new ApiResponse("User sucessfully deleted for user id"+userId,true, HttpStatus.OK.value());
-        return apiResponse;
+        return new ApiResponse("User successfully deleted for user id"+userId,true, HttpStatus.OK.value());
     }
 
     public UserPaginationResponse getUsersByPages(Integer pageNumber,Integer pageSize){
@@ -127,37 +116,6 @@ public class UserServiceImpl implements UserService {
         List<User> users = userRepository.findByFirstNameContaining(keyword);
         return users.stream().map(user -> modelMapper.map(user,UserResponseDto.class)).collect(Collectors.toList());
     }
-
-//    @Override
-//    public Map<String,String> uploadUserImageToS3(MultipartFile file,String key) throws IOException {
-//        String contentType= file.getContentType();
-//        Map<String,String> map=new HashMap<>();
-//        // upload the file directly to s3 using the input stream
-//        try(InputStream inputStream=file.getInputStream()){
-//            String s3Url=uploadImage(key,inputStream,file.getSize(),contentType);
-//            String customUrl="http://s3.com/images/"+key;
-//            map.put("s3Url",s3Url);
-//            map.put("customUrl",customUrl);
-//            return map;
-//        }
-//    }
-    
-//    public String uploadImage(String key,InputStream inputStream,long contentLength,String contentType){
-//        ObjectMetadata metadata=new ObjectMetadata();
-//        metadata.setContentLength(contentLength);
-//        metadata.setContentType(contentType);
-//        PutObjectRequest putObjectRequest=new PutObjectRequest(bucketName,fileRoot1+"/"+key,inputStream,metadata)
-//                .withCannedAcl(CannedAccessControlList.BucketOwnerFullControl);
-//        amazonS3.putObject(putObjectRequest);
-//        return getS3Url(key);
-//    }
-//    public String getS3Url(String key){
-//        return String.format("https://%s.s3.%s.amazonaws.com/%s",bucketName,region,fileRoot1+"/"+key);
-//    }
-//    public void deleteImage(String key){
-//        System.out.println(bucketName+fileRoot1+"/"+key);
-//        amazonS3.deleteObject(new DeleteObjectRequest(bucketName,fileRoot1+"/"+key));
-//    }
 
     public UserResponseDto imageUploadToS3AndUpdateUser(Long userId,MultipartFile image) throws ResourceNotFoundException, IOException {
         User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));

@@ -16,25 +16,6 @@ import java.util.regex.Pattern;
 
 @Component
 public class Utils {
-
-    public UserResponseDto convertUserToUserResponse(User user){
-        UserResponseDto userResponseDto=new UserResponseDto();
-        AddressDto addressDto=new AddressDto();
-        addressDto.setStreet(user.getAddress().getStreet());
-        addressDto.setCity(user.getAddress().getCity());
-        addressDto.setCountry(user.getAddress().getCountry());
-        userResponseDto.setAddress(addressDto);
-        userResponseDto.setUserId(user.getUserId());
-        userResponseDto.setEmail(user.getEmail());
-        userResponseDto.setFollowers(user.getFollowers());
-        userResponseDto.setFollowing(user.getFollowing());
-        userResponseDto.setAllTimeRank(user.getAllTimeRank());
-        userResponseDto.setFirstName(user.getFirstName());
-        userResponseDto.setLastName(user.getLastName());
-        userResponseDto.setLast30DaysRank(user.getLast30DaysRank());
-        userResponseDto.setProfileImageName(user.getProfileImageName());
-        return userResponseDto;
-    }
     public User validateAndSetFieldValue(UserUpdateDto userDto,User user) throws EmptyFieldException, InvalidFieldValue {
         if(userDto.getFirstName().trim().isEmpty()){
             throw new EmptyFieldException("firstName is empty");
@@ -106,7 +87,7 @@ public class Utils {
         try {
             URL urlObj = new URL(url);
             String path = urlObj.getPath();
-            if (path == null || path.isEmpty() || !path.contains("/")) {
+            if (path == null || !path.contains("/")) {
                 throw new RuntimeException("Invalid URL path");
             }
             return path.substring(path.lastIndexOf('/') + 1);

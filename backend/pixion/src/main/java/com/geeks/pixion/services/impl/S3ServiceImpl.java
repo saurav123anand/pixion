@@ -33,7 +33,6 @@ public class S3ServiceImpl implements S3Service {
         return String.format("https://%s.s3.%s.amazonaws.com/%s",bucketName,region,fileRoot+"/"+key);
     }
     public void deleteImage(String key,String fileRoot){
-        System.out.println(bucketName+fileRoot+"/"+key);
         amazonS3.deleteObject(new DeleteObjectRequest(bucketName,fileRoot+"/"+key));
     }
 }

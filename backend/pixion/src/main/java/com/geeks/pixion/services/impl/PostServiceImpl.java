@@ -1,6 +1,5 @@
 package com.geeks.pixion.services.impl;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.geeks.pixion.constants.PostType;
 import com.geeks.pixion.entities.Category;
 import com.geeks.pixion.entities.Post;
@@ -31,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -47,8 +45,6 @@ public class PostServiceImpl implements PostService {
     private CategoryRepository categoryRepository;
     @Autowired
     private ModelMapper modelMapper;
-    @Autowired
-    private AmazonS3 amazonS3;
     @Value("${s3.fileRoot2}")
     private String fileRoot2;
     @Value("${s3.fileRoot3}")
@@ -129,20 +125,16 @@ public class PostServiceImpl implements PostService {
     public ApiResponse rejectPost(Long postId) throws ResourceNotFoundException {
         Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
         User user = userRepository.findById(post.getUser().getUserId()).orElseThrow(() -> new ResourceNotFoundException("user not found for post id " + post.getUser().getUserId()));
-        String mediaUrl = post.getMediaUrl();
         PostType postType = post.getPostType();
         String key=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
         String attachmentName=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
         emailService.sendApprovedRejectPostEmail(from,new String[]{user.getEmail()},new String[]{cc},
                 "Post Rejected",senderName,user.getFirstName(),attachmentName,post.getMediaUrl(),"REJECTED");
         postRepository.deleteById(postId);
-        if(mediaUrl!=null){
-            if(postType==PostType.IMAGE){
-                s3Service.deleteImage(key,fileRoot2);
-            }
-            else{
-                s3Service.deleteImage(key,fileRoot3);
-            }
+        if (postType == PostType.IMAGE) {
+            s3Service.deleteImage(key, fileRoot2);
+        } else {
+            s3Service.deleteImage(key, fileRoot3);
         }
         return new ApiResponse("Post Rejected and deleted for postId "+postId,true, HttpStatus.OK.value());
     }
@@ -161,8 +153,7 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException {
         Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category not found for categoryId "+categoryId));
         List<Post> posts = postRepository.findByCategory(category);
-        List<PostResponseDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
-        return postDtos;
+        return posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
     }
 
     @Override
@@ -186,8 +177,7 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User not found for userId "+userId));
         List<Post> posts = postRepository.findByUser(user);
-        List<PostResponseDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
-        return postDtos;
+        return posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
     }
     @Override
     public ApiResponse deletePost(Long postId) throws ResourceNotFoundException {

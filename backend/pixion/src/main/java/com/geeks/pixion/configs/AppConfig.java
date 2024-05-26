@@ -63,4 +63,9 @@ public class AppConfig {
         javaMailSender.setPassword(password);
         return javaMailSender;
     }
+
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
 }

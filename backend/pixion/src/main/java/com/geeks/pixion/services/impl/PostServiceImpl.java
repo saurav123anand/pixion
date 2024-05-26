@@ -15,14 +15,23 @@ import com.geeks.pixion.repositiories.UserRepository;
 import com.geeks.pixion.services.EmailService;
 import com.geeks.pixion.services.PostService;
 import com.geeks.pixion.services.S3Service;
+import com.geeks.pixion.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +63,11 @@ public class PostServiceImpl implements PostService {
     private S3Service s3Service;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Autowired
+    private Utils utils;
 
     @Override
     public PostResponseDto createPost(PostAddDto postAddDto, MultipartFile file) throws ResourceNotFoundException, IOException {
@@ -115,19 +129,21 @@ public class PostServiceImpl implements PostService {
     public ApiResponse rejectPost(Long postId) throws ResourceNotFoundException {
         Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
         User user = userRepository.findById(post.getUser().getUserId()).orElseThrow(() -> new ResourceNotFoundException("user not found for post id " + post.getUser().getUserId()));
-        if(post.getMediaUrl()!=null){
-            String key=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
-            if(post.getPostType()==PostType.IMAGE){
+        String mediaUrl = post.getMediaUrl();
+        PostType postType = post.getPostType();
+        String key=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
+        String attachmentName=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
+        emailService.sendApprovedRejectPostEmail(from,new String[]{user.getEmail()},new String[]{cc},
+                "Post Rejected",senderName,user.getFirstName(),attachmentName,post.getMediaUrl(),"REJECTED");
+        postRepository.deleteById(postId);
+        if(mediaUrl!=null){
+            if(postType==PostType.IMAGE){
                 s3Service.deleteImage(key,fileRoot2);
             }
             else{
                 s3Service.deleteImage(key,fileRoot3);
             }
         }
-        String attachmentName=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
-        emailService.sendApprovedRejectPostEmail(from,new String[]{user.getEmail()},new String[]{cc},
-                "Post Rejected",senderName,user.getFirstName(),attachmentName,post.getMediaUrl(),"REJECTED");
-        postRepository.deleteById(postId);
         return new ApiResponse("Post Rejected and deleted for postId "+postId,true, HttpStatus.OK.value());
     }
 
@@ -141,18 +157,39 @@ public class PostServiceImpl implements PostService {
         List<Post> pendingPosts = postRepository.findByApproved(true);
         return pendingPosts.stream().map(post -> modelMapper.map(post,PostResponseDto.class)).collect(Collectors.toList());
     }
+    @Override
     public List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException {
         Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category not found for categoryId "+categoryId));
         List<Post> posts = postRepository.findByCategory(category);
         List<PostResponseDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
         return postDtos;
     }
+
+    @Override
+    public ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException {
+        Post post=postRepository.findById(postId).orElseThrow(()->new ResourceNotFoundException("Post not found for postId "+postId));
+        String mediaUrl = post.getMediaUrl();
+        ResponseEntity<byte[]> response = restTemplate.getForEntity(mediaUrl, byte[].class);
+        byte[] mediaData = response.getBody();
+        // Prepare the response entity
+        InputStream inputStream = new ByteArrayInputStream(mediaData);
+        HttpHeaders headers = new HttpHeaders();
+        // Extract the file name from the URL
+        String fileName = utils.getFileNameFromUrl(mediaUrl);
+        headers.setContentDispositionFormData("attachment", fileName);
+        headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // Set to generic binary data
+        headers.setContentLength(mediaData.length);
+        return new ResponseEntity<>(new InputStreamResource(inputStream),headers,HttpStatus.OK);
+    }
+
+    @Override
     public List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User not found for userId "+userId));
         List<Post> posts = postRepository.findByUser(user);
         List<PostResponseDto> postDtos = posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
         return postDtos;
     }
+    @Override
     public ApiResponse deletePost(Long postId) throws ResourceNotFoundException {
         Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
         if(post.getMediaUrl()!=null){
@@ -167,4 +204,6 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
         return new ApiResponse("Post deleted for postId "+postId,true, HttpStatus.OK.value());
     }
+
+
 }

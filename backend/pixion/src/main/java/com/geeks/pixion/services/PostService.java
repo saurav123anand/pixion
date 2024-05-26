@@ -4,6 +4,8 @@ import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.PostAddDto;
 import com.geeks.pixion.payloads.PostResponseDto;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -19,4 +21,7 @@ public interface PostService {
     List<PostResponseDto> findAllPendingPosts();
     List<PostResponseDto> findAllApprovedPosts();
     ApiResponse deletePost(Long postId) throws ResourceNotFoundException;
+    List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException;
+    List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException;
+    ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException;
 }

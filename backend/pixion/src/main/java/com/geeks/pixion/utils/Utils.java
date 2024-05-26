@@ -11,6 +11,7 @@ import com.geeks.pixion.payloads.UserResponseDto;
 import com.geeks.pixion.payloads.UserUpdateDto;
 import org.springframework.stereotype.Component;
 
+import java.net.URL;
 import java.util.regex.Pattern;
 
 @Component
@@ -100,6 +101,18 @@ public class Utils {
         }
 
         return  category;
+    }
+    public String getFileNameFromUrl(String url) {
+        try {
+            URL urlObj = new URL(url);
+            String path = urlObj.getPath();
+            if (path == null || path.isEmpty() || !path.contains("/")) {
+                throw new RuntimeException("Invalid URL path");
+            }
+            return path.substring(path.lastIndexOf('/') + 1);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract file name from URL", e);
+        }
     }
 
 }

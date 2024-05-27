@@ -8,8 +8,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.HashMap;
@@ -28,6 +26,18 @@ public class GlobalExceptionHandler {
         String message=resourceNotFoundException.getMessage();
         ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(apiResponse,HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ApiResponse> alreadyExistsExceptionHandler(AlreadyExistsException alreadyExistsException){
+        String message=alreadyExistsException.getMessage();
+        ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.CONFLICT.value());
+        return new ResponseEntity<>(apiResponse,HttpStatus.CONFLICT);
+    }
+    @ExceptionHandler(InvalidThrowException.class)
+    public ResponseEntity<ApiResponse> invalidThrowExceptionHandler(InvalidThrowException invalidThrowException){
+        String message=invalidThrowException.getMessage();
+        ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return new ResponseEntity<>(apiResponse,HttpStatus.INTERNAL_SERVER_ERROR);
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,String>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException methodArgumentNotValidException){

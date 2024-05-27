@@ -21,7 +21,7 @@ import java.util.Objects;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    Logger log = LoggerFactory.getLogger(EmailService.class);
+    Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
     @Autowired
     private JavaMailSender javaMailSender;
     @Autowired
@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
         }
         catch (Exception e){
             e.printStackTrace();
-            log.error("Error occurred while sending email "+e.getMessage());
+            log.error(String.format("Error occurred while sending email: %s", e.getMessage()));
         }
     }
 

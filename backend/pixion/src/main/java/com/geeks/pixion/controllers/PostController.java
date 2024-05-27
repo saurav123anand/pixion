@@ -1,6 +1,7 @@
 package com.geeks.pixion.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.PostAddDto;
@@ -59,7 +60,7 @@ public class PostController {
         return postService.deletePost(postId);
     }
     @GetMapping("/download")
-    public ResponseEntity<InputStreamResource> downloadMedia(@RequestParam Long postId) throws IOException, ResourceNotFoundException {
+    public ResponseEntity<InputStreamResource> downloadMedia(@RequestParam Long postId) throws ResourceNotFoundException, InvalidThrowException {
         return postService.downloadPostMedia(postId);
     }
 

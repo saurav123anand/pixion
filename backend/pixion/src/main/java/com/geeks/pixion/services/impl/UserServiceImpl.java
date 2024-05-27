@@ -1,4 +1,5 @@
 package com.geeks.pixion.services.impl;
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
@@ -32,12 +33,8 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper;
     @Autowired
     private Utils utils;
-    @Value("${s3.bucketName}")
-    private String bucketName;
     @Value("${s3.fileRoot1}")
     private String fileRoot1;
-    @Value("${s3.region}")
-    private String region;
     @Autowired
     private S3Service s3Service;
 
@@ -51,7 +48,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateUser(UserUpdateDto userDto, Long userId) throws InvalidFieldValue, EmptyFieldException, ResourceNotFoundException{
-        User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
+        User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG +userId));
         user=utils.validateAndSetFieldValue(userDto,user);
         userRepository.save(user);
         return modelMapper.map(user, UserResponseDto.class);
@@ -59,7 +56,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserById(Long userId) throws ResourceNotFoundException {
-        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
+        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG+userId));
         return modelMapper.map(user, UserResponseDto.class);
     }
 
@@ -73,7 +70,6 @@ public class UserServiceImpl implements UserService {
     public ApiResponse deleteUser(Long userId) throws ResourceNotFoundException {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
         String imageKey=user.getProfileImageName().substring(user.getProfileImageName().lastIndexOf("/")+1);
-        System.out.println("image key is "+imageKey);
         s3Service.deleteImage(imageKey,fileRoot1);
         userRepository.delete(user);
         return new ApiResponse("User successfully deleted for user id"+userId,true, HttpStatus.OK.value());

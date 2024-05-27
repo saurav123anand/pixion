@@ -5,9 +5,9 @@ import com.geeks.pixion.entities.Category;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
+import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.payloads.AddressDto;
 import com.geeks.pixion.payloads.CategoryAddDto;
-import com.geeks.pixion.payloads.UserResponseDto;
 import com.geeks.pixion.payloads.UserUpdateDto;
 import org.springframework.stereotype.Component;
 
@@ -83,16 +83,17 @@ public class Utils {
 
         return  category;
     }
-    public String getFileNameFromUrl(String url) {
+    public String getFileNameFromUrl(String url) throws InvalidThrowException {
         try {
             URL urlObj = new URL(url);
             String path = urlObj.getPath();
             if (path == null || !path.contains("/")) {
-                throw new RuntimeException("Invalid URL path");
+                throw new InvalidThrowException("Invalid URL path");
             }
             return path.substring(path.lastIndexOf('/') + 1);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to extract file name from URL", e);
+            e.printStackTrace();
+            throw new InvalidThrowException("Failed to extract file name from URL"+e);
         }
     }
 

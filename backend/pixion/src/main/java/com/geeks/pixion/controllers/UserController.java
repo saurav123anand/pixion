@@ -2,6 +2,8 @@ package com.geeks.pixion.controllers;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.geeks.pixion.constants.Constants;
+import com.geeks.pixion.exceptions.EmptyFieldException;
+import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.services.UserService;
@@ -30,11 +32,11 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
     @PutMapping(value = "/update/{userId}",consumes = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE,MediaType.APPLICATION_JSON_VALUE})
-    public UserResponseDto updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto, @PathVariable Long userId) throws Exception {
+    public UserResponseDto updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto, @PathVariable Long userId) throws InvalidFieldValue, ResourceNotFoundException, EmptyFieldException {
         return userService.updateUser(userUpdateDto,userId);
     }
     @GetMapping("/all")
-    public List<UserResponseDto> findAll() throws ResourceNotFoundException {
+    public List<UserResponseDto> findAll(){
         return userService.getAllUsers();
     }
     @GetMapping("/byId/{userId}")
@@ -49,7 +51,7 @@ public class UserController {
     // pagination
     @GetMapping("/pagination")
     public UserPaginationResponse findAllByPages(@RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
-            Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize ) throws ResourceNotFoundException {
+            Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize ) {
         return userService.getUsersByPages(pageNumber,pageSize);
     }
 
@@ -58,7 +60,7 @@ public class UserController {
     public UserPaginationResponse findAllSortedByPages(@RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
                                                  Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize,
                                                        @RequestParam(value = "sortBy",defaultValue =Constants.SORT_BY,required = false)
-                                                       String sortBy, @RequestParam(value = "sortDir",defaultValue =Constants.SORT_DIR,required = false) String sortDir) throws ResourceNotFoundException {
+                                                       String sortBy, @RequestParam(value = "sortDir",defaultValue =Constants.SORT_DIR,required = false) String sortDir){
         return userService.getSortedUsersByPages(pageNumber,pageSize,sortBy,sortDir);
     }
 

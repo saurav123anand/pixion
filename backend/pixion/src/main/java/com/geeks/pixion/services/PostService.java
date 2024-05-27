@@ -1,5 +1,6 @@
 package com.geeks.pixion.services;
 
+import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.PostAddDto;
@@ -14,7 +15,6 @@ import java.util.List;
 public interface PostService {
     PostResponseDto createPost(PostAddDto postAddDto, MultipartFile file) throws ResourceNotFoundException, IOException;
     PostResponseDto findPostById(Long postId) throws ResourceNotFoundException;
-    //PostResponseDto updatePost(PostAddDto postAddDto, MultipartFile file);
     List<PostResponseDto> findAllPost();
     PostResponseDto approvePost(Long postId) throws ResourceNotFoundException;
     ApiResponse rejectPost(Long postId) throws ResourceNotFoundException;
@@ -23,5 +23,5 @@ public interface PostService {
     ApiResponse deletePost(Long postId) throws ResourceNotFoundException;
     List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException;
     List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException;
-    ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException;
+    ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException, InvalidThrowException;
 }

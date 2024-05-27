@@ -30,7 +30,7 @@ public class CategoryController {
     }
 
     @GetMapping("/all")
-    public List<Category> findAllCategory() throws ResourceNotFoundException {
+    public List<Category> findAllCategory() {
         return categoryService.getAllCategory();
     }
 

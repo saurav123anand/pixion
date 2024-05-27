@@ -33,12 +33,8 @@ public class UserServiceImpl implements UserService {
     private ModelMapper modelMapper;
     @Autowired
     private Utils utils;
-    @Value("${s3.bucketName}")
-    private String bucketName;
     @Value("${s3.fileRoot1}")
     private String fileRoot1;
-    @Value("${s3.region}")
-    private String region;
     @Autowired
     private S3Service s3Service;
 

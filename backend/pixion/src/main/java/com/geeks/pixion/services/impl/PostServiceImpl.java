@@ -64,10 +64,8 @@ public class PostServiceImpl implements PostService {
     private EmailService emailService;
     @Autowired
     private RestTemplate restTemplate;
-
     @Autowired
     private Utils utils;
-
     @Override
     public PostResponseDto createPost(PostAddDto postAddDto, MultipartFile file) throws ResourceNotFoundException, IOException {
         // at later time get the user directly , fetch the currently logged in user from security context instead.
@@ -98,9 +96,7 @@ public class PostServiceImpl implements PostService {
         Post savedPost = postRepository.save(post);
         emailService.sendEmailWithAttachment(from,new String[]{user.getEmail()},new String[]{cc},"Post sent for Approval",senderName, user.getFirstName(),file);
         return modelMapper.map(savedPost,PostResponseDto.class);
-
     }
-
     @Override
     public PostResponseDto findPostById(Long postId) throws ResourceNotFoundException {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
@@ -197,6 +193,4 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
         return new ApiResponse("Post deleted for postId "+postId,true, HttpStatus.OK.value());
     }
-
-
 }

@@ -1,6 +1,7 @@
 package com.geeks.pixion.controllers;
 
 import com.geeks.pixion.entities.Favorite;
+import com.geeks.pixion.exceptions.AlreadyExistsException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.FavoriteDto;
@@ -20,7 +21,7 @@ public class FavoriteController {
     private FavoriteService favoriteService;
 
     @PostMapping("/add")
-    public FavoriteResponseDto addFavorite(@RequestBody FavoriteDto favoriteDto) throws ResourceNotFoundException {
+    public FavoriteResponseDto addFavorite(@RequestBody FavoriteDto favoriteDto) throws ResourceNotFoundException, AlreadyExistsException {
         return favoriteService.addFavorite(favoriteDto);
     }
 

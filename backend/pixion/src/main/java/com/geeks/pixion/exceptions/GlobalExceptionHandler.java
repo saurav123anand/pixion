@@ -29,6 +29,12 @@ public class GlobalExceptionHandler {
         ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.NOT_FOUND.value());
         return new ResponseEntity<>(apiResponse,HttpStatus.NOT_FOUND);
     }
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ApiResponse> alreadyExistsExceptionExceptionHandler(AlreadyExistsException alreadyExistsException){
+        String message=alreadyExistsException.getMessage();
+        ApiResponse apiResponse=new ApiResponse(message,false, HttpStatus.CONFLICT.value());
+        return new ResponseEntity<>(apiResponse,HttpStatus.CONFLICT);
+    }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String,String>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException methodArgumentNotValidException){
         Map<String,String> response=new HashMap<>();

@@ -3,6 +3,7 @@ package com.geeks.pixion.services.impl;
 import com.geeks.pixion.entities.Favorite;
 import com.geeks.pixion.entities.Post;
 import com.geeks.pixion.entities.User;
+import com.geeks.pixion.exceptions.AlreadyExistsException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.FavoriteDto;
@@ -33,11 +34,11 @@ public class FavoriteServiceImpl implements FavoriteService {
     private ModelMapper modelMapper;
 
     @Override
-    public FavoriteResponseDto addFavorite(FavoriteDto favoriteDto) throws ResourceNotFoundException {
+    public FavoriteResponseDto addFavorite(FavoriteDto favoriteDto) throws ResourceNotFoundException, AlreadyExistsException {
         User user = userRepository.findById(favoriteDto.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User not found for userId " + favoriteDto.getUserId()));
         Post post = postRepository.findById(favoriteDto.getPostId()).orElseThrow(() -> new ResourceNotFoundException("Post not found for postId " + favoriteDto.getPostId()));
         if (favoriteRepository.existsByPostAndUser(post,user))
-            throw new RuntimeException("Post is already in the user's favorites");
+            throw new AlreadyExistsException("Post is already in the user's favorites");
         Favorite favorite=new Favorite();
         favorite.setPost(post);
         favorite.setUser(user);

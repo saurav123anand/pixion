@@ -5,14 +5,17 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "posts")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+//@ToString(exclude = {"user", "favorites"})
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -33,5 +36,8 @@ public class Post {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Favorite> favorites;
 
 }

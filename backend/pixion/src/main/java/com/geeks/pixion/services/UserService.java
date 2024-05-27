@@ -18,6 +18,5 @@ public interface UserService {
     UserPaginationResponse getUsersByPages(Integer pageNumber, Integer pageSize);
     UserPaginationResponse getSortedUsersByPages(Integer pageNumber, Integer pageSize,String sortBy,String sortDir);
     List<UserResponseDto> searchUsers(String keyword);
-    //Map<String,String> uploadUserImageToS3(MultipartFile multipartFile) throws IOException;
     UserResponseDto imageUploadToS3AndUpdateUser(Long userId,MultipartFile image) throws ResourceNotFoundException, IOException;
 }

@@ -1,5 +1,6 @@
 package com.geeks.pixion.services.impl;
 
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.entities.Category;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
@@ -31,7 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category updateCategory(CategoryAddDto request, Long categoryId) throws ResourceNotFoundException {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category not found for category id "+categoryId));
+        Category category = categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException(Constants.CATEGORY_EXCEPTION_MSG +categoryId));
         Category updatedCategory = utils.validateAndSetFieldValue(request, category);
         return categoryRepository.save(updatedCategory);
     }
@@ -43,14 +44,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category getCategoryById(Long categoryId) throws ResourceNotFoundException {
-        return categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category not found for category id "+categoryId));
+        return categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException(Constants.CATEGORY_EXCEPTION_MSG +categoryId));
     }
 
     @Override
-    public ApiResponse deleteCategory(Long id) throws ResourceNotFoundException {
-        Category category=categoryRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("category not found for category id "+id));
+    public ApiResponse deleteCategory(Long categoryId) throws ResourceNotFoundException {
+        Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException(Constants.CATEGORY_EXCEPTION_MSG +categoryId));
         categoryRepository.delete(category);
-        return new ApiResponse("Category successfully deleted for user id"+id,true, HttpStatus.OK.value());
+        return new ApiResponse("Category successfully deleted for user id"+categoryId,true, HttpStatus.OK.value());
     }
 
 }

@@ -1,5 +1,6 @@
 package com.geeks.pixion.services.impl;
 
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.entities.Favorite;
 import com.geeks.pixion.entities.Post;
 import com.geeks.pixion.entities.User;
@@ -8,7 +9,6 @@ import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.FavoriteDto;
 import com.geeks.pixion.payloads.FavoriteResponseDto;
-import com.geeks.pixion.payloads.PostResponseDto;
 import com.geeks.pixion.repositiories.FavoriteRepository;
 import com.geeks.pixion.repositiories.PostRepository;
 import com.geeks.pixion.repositiories.UserRepository;
@@ -35,7 +35,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Override
     public FavoriteResponseDto addFavorite(FavoriteDto favoriteDto) throws ResourceNotFoundException, AlreadyExistsException {
-        User user = userRepository.findById(favoriteDto.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User not found for userId " + favoriteDto.getUserId()));
+        User user = userRepository.findById(favoriteDto.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG + favoriteDto.getUserId()));
         Post post = postRepository.findById(favoriteDto.getPostId()).orElseThrow(() -> new ResourceNotFoundException("Post not found for postId " + favoriteDto.getPostId()));
         if (favoriteRepository.existsByPostAndUser(post,user))
             throw new AlreadyExistsException("Post is already in the user's favorites");
@@ -43,14 +43,13 @@ public class FavoriteServiceImpl implements FavoriteService {
         favorite.setPost(post);
         favorite.setUser(user);
         favorite.setFavoriteTime(new Date());
-        System.out.println("user favorite is "+user.getFavorites());
         Favorite save = favoriteRepository.save(favorite);
         return modelMapper.map(save,FavoriteResponseDto.class);
     }
 
     @Override
     public ApiResponse removeFavorite(FavoriteDto favoriteDto) throws ResourceNotFoundException {
-        User user = userRepository.findById(favoriteDto.getUserId()).orElseThrow(() -> new ResourceNotFoundException("User not found for userId " + favoriteDto.getUserId()));
+        User user = userRepository.findById(favoriteDto.getUserId()).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG + favoriteDto.getUserId()));
         Post post = postRepository.findById(favoriteDto.getPostId()).orElseThrow(() -> new ResourceNotFoundException("Post not found for postId " + favoriteDto.getPostId()));
         Favorite favorite = favoriteRepository.findByPostAndUser(post, user).orElseThrow(() -> new ResourceNotFoundException("Favorite not found!"));
         favoriteRepository.delete(favorite);
@@ -59,7 +58,7 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     @Override
     public List<FavoriteResponseDto> getFavoritePostsByUser(Long userId) throws ResourceNotFoundException {
-        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found for userId " + userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG + userId));
         List<Favorite> favorites = favoriteRepository.findAllByUser(user);
         return favorites.stream().map(favorite -> modelMapper.map(favorite,FavoriteResponseDto.class))
                 .collect(Collectors.toList());

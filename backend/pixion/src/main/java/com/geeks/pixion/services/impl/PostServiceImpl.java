@@ -1,9 +1,11 @@
 package com.geeks.pixion.services.impl;
 
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.constants.PostType;
 import com.geeks.pixion.entities.Category;
 import com.geeks.pixion.entities.Post;
 import com.geeks.pixion.entities.User;
+import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;
 import com.geeks.pixion.payloads.PostAddDto;
@@ -32,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -100,7 +103,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDto findPostById(Long postId) throws ResourceNotFoundException {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
         return modelMapper.map(post, PostResponseDto.class);
     }
 
@@ -112,7 +115,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponseDto approvePost(Long postId) throws ResourceNotFoundException {
-        Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
+        Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
         User user = userRepository.findById(post.getUser().getUserId()).orElseThrow(() -> new ResourceNotFoundException("user not found for post id " + post.getUser().getUserId()));
         post.setApproved(true);
         Post saved=postRepository.save(post);
@@ -123,7 +126,7 @@ public class PostServiceImpl implements PostService {
     }
     @Override
     public ApiResponse rejectPost(Long postId) throws ResourceNotFoundException {
-        Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
+        Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
         User user = userRepository.findById(post.getUser().getUserId()).orElseThrow(() -> new ResourceNotFoundException("user not found for post id " + post.getUser().getUserId()));
         PostType postType = post.getPostType();
         String key=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
@@ -157,8 +160,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException {
-        Post post=postRepository.findById(postId).orElseThrow(()->new ResourceNotFoundException("Post not found for postId "+postId));
+    public ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException, InvalidThrowException {
+        Post post=postRepository.findById(postId).orElseThrow(()->new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG+postId));
         String mediaUrl = post.getMediaUrl();
         ResponseEntity<byte[]> response = restTemplate.getForEntity(mediaUrl, byte[].class);
         byte[] mediaData = response.getBody();
@@ -169,19 +172,19 @@ public class PostServiceImpl implements PostService {
         String fileName = utils.getFileNameFromUrl(mediaUrl);
         headers.setContentDispositionFormData("attachment", fileName);
         headers.setContentType(MediaType.APPLICATION_OCTET_STREAM); // Set to generic binary data
-        headers.setContentLength(mediaData.length);
+        headers.setContentLength(Objects.requireNonNull(mediaData).length);
         return new ResponseEntity<>(new InputStreamResource(inputStream),headers,HttpStatus.OK);
     }
 
     @Override
     public List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException {
-        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User not found for userId "+userId));
+        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG+userId));
         List<Post> posts = postRepository.findByUser(user);
         return posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
     }
     @Override
     public ApiResponse deletePost(Long postId) throws ResourceNotFoundException {
-        Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("post not found for post id " + postId));
+        Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
         if(post.getMediaUrl()!=null){
             String key=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
             if(post.getPostType()==PostType.IMAGE){

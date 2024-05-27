@@ -1,6 +1,5 @@
 package com.geeks.pixion.controllers;
 
-import com.geeks.pixion.entities.Favorite;
 import com.geeks.pixion.exceptions.AlreadyExistsException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.ApiResponse;

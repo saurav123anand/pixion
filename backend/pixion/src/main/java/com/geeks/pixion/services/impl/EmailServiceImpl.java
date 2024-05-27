@@ -21,7 +21,7 @@ import java.util.Objects;
 @Service
 public class EmailServiceImpl implements EmailService {
 
-    Logger log = LoggerFactory.getLogger(EmailService.class);
+    Logger log = LoggerFactory.getLogger(EmailServiceImpl.class);
     @Autowired
     private JavaMailSender javaMailSender;
     @Autowired

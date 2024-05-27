@@ -1,14 +1,18 @@
 package com.geeks.pixion.services.impl;
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.repositiories.UserRepository;
+import com.geeks.pixion.services.EmailService;
 import com.geeks.pixion.services.S3Service;
 import com.geeks.pixion.services.UserService;
 import com.geeks.pixion.utils.Utils;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -51,7 +55,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto updateUser(UserUpdateDto userDto, Long userId) throws InvalidFieldValue, EmptyFieldException, ResourceNotFoundException{
-        User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
+        User user= userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG +userId));
         user=utils.validateAndSetFieldValue(userDto,user);
         userRepository.save(user);
         return modelMapper.map(user, UserResponseDto.class);
@@ -59,7 +63,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDto getUserById(Long userId) throws ResourceNotFoundException {
-        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
+        User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG+userId));
         return modelMapper.map(user, UserResponseDto.class);
     }
 
@@ -73,7 +77,6 @@ public class UserServiceImpl implements UserService {
     public ApiResponse deleteUser(Long userId) throws ResourceNotFoundException {
         User user=userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("user not found for user id "+userId));
         String imageKey=user.getProfileImageName().substring(user.getProfileImageName().lastIndexOf("/")+1);
-        System.out.println("image key is "+imageKey);
         s3Service.deleteImage(imageKey,fileRoot1);
         userRepository.delete(user);
         return new ApiResponse("User successfully deleted for user id"+userId,true, HttpStatus.OK.value());

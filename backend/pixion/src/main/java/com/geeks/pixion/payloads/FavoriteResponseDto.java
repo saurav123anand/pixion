@@ -1,7 +1,5 @@
 package com.geeks.pixion.payloads;
 
-
-import jakarta.annotation.Nonnull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

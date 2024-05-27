@@ -48,7 +48,7 @@ public class EmailServiceImpl implements EmailService {
         }
         catch (Exception e){
             e.printStackTrace();
-            log.error("Error occurred while sending email "+e.getMessage());
+            log.error(String.format("Error occurred while sending email: %s", e.getMessage()));
         }
     }
 

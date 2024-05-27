@@ -8,7 +8,6 @@ import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.payloads.AddressDto;
 import com.geeks.pixion.payloads.CategoryAddDto;
-import com.geeks.pixion.payloads.UserResponseDto;
 import com.geeks.pixion.payloads.UserUpdateDto;
 import org.springframework.stereotype.Component;
 

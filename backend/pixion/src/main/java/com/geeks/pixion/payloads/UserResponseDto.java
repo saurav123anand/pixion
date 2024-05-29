@@ -16,8 +16,6 @@ public class UserResponseDto {
     private String password;
     private Date createdTimeStamp;
     private String profileImageName;
-    private Long followers;
-    private Long following;
     private Long allTimeRank;
     private Long last30DaysRank;
     private String bio;

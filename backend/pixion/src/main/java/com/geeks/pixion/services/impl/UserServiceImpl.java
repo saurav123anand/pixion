@@ -9,6 +9,7 @@ import com.geeks.pixion.repositiories.UserRepository;
 import com.geeks.pixion.services.S3Service;
 import com.geeks.pixion.services.UserService;
 import com.geeks.pixion.utils.Utils;
+import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,9 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -125,6 +124,41 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
         return modelMapper.map(user, UserResponseDto.class);
+    }
+
+    @Transactional
+    @Override
+    public void followUser(Long userId, Long followerId) throws ResourceNotFoundException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG + userId));
+        User follower = userRepository.findById(followerId).orElseThrow(() -> new ResourceNotFoundException("followers not found for followerId" + followerId));
+        user.getFollowers().add(follower);
+        follower.getFollowing().add(user);
+        userRepository.save(user);
+        userRepository.save(follower);
+    }
+
+    @Transactional
+    @Override
+    public void unfollowUser(Long userId, Long followerId) throws ResourceNotFoundException {
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG + userId));
+        User following = userRepository.findById(followerId).orElseThrow(() -> new ResourceNotFoundException("followers not found for followerId" + followerId));
+        user.getFollowers().remove(following);
+        following.getFollowing().remove(user);
+        userRepository.save(user);
+        userRepository.save(following);
+    }
+    @Transactional(readOnly = true)
+    @Override
+    public Map<String,Object> getFollowersAndFollowing(Long userId) throws ResourceNotFoundException {
+        Map<String,Object> result=new HashMap<>();
+        User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(Constants.USER_EXCEPTION_MSG + userId));
+        Set<User> followers = user.getFollowers();
+        Set<User> following = user.getFollowing();
+        result.put("followers", followers);
+        result.put("following", following);
+        result.put("followersCount", followers.size());
+        result.put("followingCount", following.size());
+        return result;
     }
 
 }

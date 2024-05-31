@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -72,5 +73,20 @@ public class UserController {
     @PutMapping("/upload/{userId}")
     public UserResponseDto uploadImage(@PathVariable Long userId,@RequestParam("image") MultipartFile image) throws IOException, ResourceNotFoundException {
          return userService.imageUploadToS3AndUpdateUser(userId,image);
+    }
+
+    @PostMapping("/{userId}/follow/{followerId}")
+    public void followUser(@PathVariable Long userId, @PathVariable Long followerId) throws ResourceNotFoundException {
+        userService.followUser(userId, followerId);
+    }
+
+    @PostMapping("/{userId}/unfollow/{followerId}")
+    public void unfollowUser(@PathVariable Long userId, @PathVariable Long followerId) throws ResourceNotFoundException {
+        userService.unfollowUser(userId, followerId);
+    }
+
+    @GetMapping("/users/{userId}/followers-following")
+    public Map<String, Object> getFollowersAndFollowing(@PathVariable Long userId) throws ResourceNotFoundException {
+        return userService.getFollowersAndFollowing(userId);
     }
 }

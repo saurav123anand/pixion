@@ -1,6 +1,7 @@
 package com.geeks.pixion.services.impl;
 import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.entities.User;
+import com.geeks.pixion.exceptions.AlreadyExistsException;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
@@ -9,6 +10,8 @@ import com.geeks.pixion.repositiories.UserRepository;
 import com.geeks.pixion.services.S3Service;
 import com.geeks.pixion.services.UserService;
 import com.geeks.pixion.utils.Utils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,13 +39,20 @@ public class UserServiceImpl implements UserService {
     private String fileRoot1;
     @Autowired
     private S3Service s3Service;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
-    public UserResponseDto createUser(UserAddDto userAddDto) {
-        User user = modelMapper.map(userAddDto, User.class);
-        user.setCreatedTimeStamp(new Date());
-        User saved = userRepository.save(user);
-        return modelMapper.map(saved,UserResponseDto.class);
+    public UserResponseDto createUser(UserAddDto userAddDto) throws AlreadyExistsException {
+        Optional<User> user=userRepository.findByUsername(userAddDto.getUsername());
+        if(user.isPresent()){
+            throw new AlreadyExistsException("user already present for username "+userAddDto.getUsername());
+        }
+        User mappedUser = modelMapper.map(userAddDto, User.class);
+        mappedUser.setPassword(passwordEncoder.encode(userAddDto.getPassword()));
+        mappedUser.setRole(userAddDto.getRole());
+        mappedUser = userRepository.save(mappedUser);
+        return modelMapper.map(mappedUser,UserResponseDto.class);
     }
 
     @Override

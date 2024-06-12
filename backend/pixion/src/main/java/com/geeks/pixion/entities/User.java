@@ -3,25 +3,28 @@ package com.geeks.pixion.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "user")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long userId;
+    private String username;
     private String firstName;
     private String lastName;
     private String email;
     private String password;
+    @Enumerated(value = EnumType.STRING)
+    private Role role;
     private Date createdTimeStamp;
     private String profileImageName;
     private Long allTimeRank;
@@ -31,6 +34,7 @@ public class User {
     private String xurl;
     private String portfolioUrl;
     private String linkedinUrl;
+    private boolean enabled=true;
     // here address will have foreign key of user
     @OneToOne(mappedBy = "user",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private Address address;
@@ -55,5 +59,24 @@ public class User {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private Set<User> following = new HashSet<>();
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
 }

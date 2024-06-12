@@ -2,6 +2,7 @@ package com.geeks.pixion.controllers;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.geeks.pixion.constants.Constants;
+import com.geeks.pixion.exceptions.AlreadyExistsException;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
@@ -15,8 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/users")
@@ -27,8 +30,8 @@ public class UserController {
     @Autowired
     private AmazonS3 s3Service;
 
-    @PostMapping("/create")
-    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserAddDto userAddDto){
+    @PostMapping("/register")
+    public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody UserAddDto userAddDto) throws AlreadyExistsException {
         UserResponseDto user = userService.createUser(userAddDto);
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -85,7 +88,7 @@ public class UserController {
         userService.unfollowUser(userId, followerId);
     }
 
-    @GetMapping("/users/{userId}/followers-following")
+    @GetMapping("/{userId}/followers-following")
     public Map<String, Object> getFollowersAndFollowing(@PathVariable Long userId) throws ResourceNotFoundException {
         return userService.getFollowersAndFollowing(userId);
     }

@@ -1,11 +1,10 @@
 package com.geeks.pixion.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
-import com.geeks.pixion.payloads.ApiResponse;
-import com.geeks.pixion.payloads.PostAddDto;
-import com.geeks.pixion.payloads.PostResponseDto;
+import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.services.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -71,5 +70,25 @@ public class PostController {
     @GetMapping("/by/category")
     public ResponseEntity<List<PostResponseDto>> getPostsByCategory(@RequestParam Long categoryId) throws ResourceNotFoundException {
         return new ResponseEntity<>(postService.getPostsByCategory(categoryId),HttpStatus.OK);
+    }
+
+    // pagination
+    @GetMapping("/pagination")
+    public PostPaginationResponse findAllByPages(@RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
+                                                 Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize ) {
+        return postService.getPostsByPages(pageNumber,pageSize);
+    }
+
+    // pagination with sorting
+    @GetMapping("/pagination/sorted")
+    public PostPaginationResponse findAllSortedByPages(@RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
+                                                       Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize,
+                                                       @RequestParam(value = "sortBy",defaultValue =Constants.SORT_BY,required = false)
+                                                       String sortBy, @RequestParam(value = "sortDir",defaultValue =Constants.SORT_DIR,required = false) String sortDir){
+        return postService.getSortedPostsByPages(pageNumber,pageSize,sortBy,sortDir);
+    }
+    @GetMapping("/random")
+    public RandomPostResponse getRandomPost() {
+        return postService.getRandomPost();
     }
 }

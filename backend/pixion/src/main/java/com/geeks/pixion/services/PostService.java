@@ -2,9 +2,7 @@ package com.geeks.pixion.services;
 
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
-import com.geeks.pixion.payloads.ApiResponse;
-import com.geeks.pixion.payloads.PostAddDto;
-import com.geeks.pixion.payloads.PostResponseDto;
+import com.geeks.pixion.payloads.*;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,4 +22,7 @@ public interface PostService {
     List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException;
     List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException;
     ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException, InvalidThrowException;
+    PostPaginationResponse getPostsByPages(Integer pageNumber, Integer pageSize);
+    PostPaginationResponse getSortedPostsByPages(Integer pageNumber, Integer pageSize,String sortBy,String sortDir);
+    RandomPostResponse getRandomPost();
 }

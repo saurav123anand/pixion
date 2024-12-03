@@ -7,9 +7,7 @@ import com.geeks.pixion.entities.Post;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
-import com.geeks.pixion.payloads.ApiResponse;
-import com.geeks.pixion.payloads.PostAddDto;
-import com.geeks.pixion.payloads.PostResponseDto;
+import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.repositiories.CategoryRepository;
 import com.geeks.pixion.repositiories.PostRepository;
 import com.geeks.pixion.repositiories.UserRepository;
@@ -21,6 +19,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -107,6 +109,48 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDto> findAllPost() {
         List<Post> allPosts = postRepository.findAll();
         return allPosts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
+    }
+    @Override
+    public PostPaginationResponse getPostsByPages(Integer pageNumber, Integer pageSize) {
+        Pageable pageable= PageRequest.of(pageNumber,pageSize);
+        Page<Post> postPages = postRepository.findAll(pageable);
+        List<Post> postPagesContent = postPages.getContent();
+        List<PostResponseDto> posts = postPagesContent.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
+        PostPaginationResponse postPaginationResponse=new PostPaginationResponse();
+        postPaginationResponse.setPosts(posts);
+        postPaginationResponse.setPageNumber(postPages.getNumber());
+        postPaginationResponse.setPageSize(postPages.getSize());
+        postPaginationResponse.setTotalElements(postPages.getTotalElements());
+        postPaginationResponse.setTotalPages(postPages.getTotalPages());
+        postPaginationResponse.setLastPage(postPages.isLast());
+        return postPaginationResponse;
+    }
+
+    @Override
+    public PostPaginationResponse getSortedPostsByPages(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+        Sort sort=sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        Page<Post> postPages = postRepository.findAll(pageable);
+        List<Post> postsContent = postPages.getContent();
+        List<PostResponseDto> posts = postsContent.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
+        PostPaginationResponse postPaginationResponse=new PostPaginationResponse();
+        postPaginationResponse.setPosts(posts);
+        postPaginationResponse.setPageNumber(postPages.getNumber());
+        postPaginationResponse.setPageSize(postPages.getSize());
+        postPaginationResponse.setTotalElements(postPages.getTotalElements());
+        postPaginationResponse.setTotalPages(postPages.getTotalPages());
+        postPaginationResponse.setLastPage(postPages.isLast());
+        return postPaginationResponse;
+    }
+
+    @Override
+    public RandomPostResponse getRandomPost() {
+        Post randomPost = postRepository.findRandomPost();
+        RandomPostResponse randomPostResponse=new RandomPostResponse();
+        randomPostResponse.setPostId(randomPost.getPostId());
+        randomPostResponse.setMediaUrL(randomPost.getMediaUrl());
+        randomPostResponse.setAuthor(randomPost.getUser().getFirstName().trim()+" "+randomPost.getUser().getLastName().trim());
+        return randomPostResponse;
     }
 
     @Override

@@ -12,6 +12,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByApproved(boolean approved);
     List<Post> findByUser(User user);
     List<Post> findByCategory(Category category);
-    @Query("SELECT p FROM Post p ORDER BY RAND() LIMIT 1")
+    @Query("SELECT p FROM Post p where p.approved=true ORDER BY RAND() LIMIT 1")
     Optional<Post> findRandomPost();
 }

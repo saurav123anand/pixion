@@ -88,7 +88,7 @@ public class PostController {
         return postService.getSortedPostsByPages(pageNumber,pageSize,sortBy,sortDir);
     }
     @GetMapping("/random")
-    public RandomPostResponse getRandomPost() {
+    public RandomPostResponse getRandomPost() throws ResourceNotFoundException {
         return postService.getRandomPost();
     }
 }

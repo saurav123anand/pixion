@@ -144,8 +144,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public RandomPostResponse getRandomPost() {
-        Post randomPost = postRepository.findRandomPost();
+    public RandomPostResponse getRandomPost() throws ResourceNotFoundException {
+        Post randomPost = postRepository.findRandomPost().orElseThrow(()->new ResourceNotFoundException("Post not found"));
         RandomPostResponse randomPostResponse=new RandomPostResponse();
         randomPostResponse.setPostId(randomPost.getPostId());
         randomPostResponse.setMediaUrL(randomPost.getMediaUrl());

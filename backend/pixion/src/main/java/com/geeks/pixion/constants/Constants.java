@@ -9,4 +9,5 @@ public class Constants {
     public static final String USER_EXCEPTION_MSG="User not found for userId ";
     public static final String CATEGORY_EXCEPTION_MSG ="Category not found for categoryId ";
     public static final String POST_EXCEPTION_MSG ="Post not found for postId ";
+    public static final String HUGGING_FACE_API_URL = "https://api-inference.huggingface.co/models/CompVis/stable-diffusion-v1-4";
 }

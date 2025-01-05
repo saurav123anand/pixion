@@ -148,8 +148,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public RandomPostResponse getRandomPost() throws ResourceNotFoundException {
-        Post randomPost = postRepository.findRandomPost().orElseThrow(()->new ResourceNotFoundException("Post not found"));
+    public RandomPostResponse getRandomPost(String type) throws ResourceNotFoundException {
+        PostType postType = PostType.valueOf(type);
+        Post randomPost = postRepository.findRandomPostByType(postType).orElseThrow(()->new ResourceNotFoundException("Post not found"));
         RandomPostResponse randomPostResponse=new RandomPostResponse();
         randomPostResponse.setPostId(randomPost.getPostId());
         randomPostResponse.setMediaUrL(randomPost.getMediaUrl());
@@ -244,4 +245,5 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
         return new ApiResponse("Post deleted for postId "+postId,true, HttpStatus.OK.value());
     }
+
 }

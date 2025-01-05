@@ -89,7 +89,10 @@ public class PostController {
         return postService.getSortedPostsByPages(pageNumber,pageSize,sortBy,sortDir);
     }
     @GetMapping("/random")
-    public RandomPostResponse getRandomPost() throws ResourceNotFoundException {
-        return postService.getRandomPost();
+    public RandomPostResponse getRandomPost(@RequestParam String type) throws ResourceNotFoundException, InvalidThrowException {
+        if (!type.equals("IMAGE") && !type.equals("VIDEO")) {
+            throw new InvalidThrowException("Invalid type. Valid types are IMAGE or VIDEO.");
+        }
+        return postService.getRandomPost(type);
     }
 }

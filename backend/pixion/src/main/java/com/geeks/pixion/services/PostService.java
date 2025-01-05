@@ -14,6 +14,9 @@ public interface PostService {
     PostResponseDto createPost(PostAddDto postAddDto, MultipartFile file) throws ResourceNotFoundException, IOException;
     PostResponseDto findPostById(Long postId) throws ResourceNotFoundException;
     List<PostResponseDto> findAllPost();
+
+    RandomPostResponse getRandomPost(String type) throws ResourceNotFoundException;
+
     PostResponseDto approvePost(Long postId) throws ResourceNotFoundException;
     ApiResponse rejectPost(Long postId) throws ResourceNotFoundException;
     List<PostResponseDto> findAllPendingPosts();
@@ -24,5 +27,4 @@ public interface PostService {
     ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException, InvalidThrowException;
     PostPaginationResponse getPostsByPages(Integer pageNumber, Integer pageSize);
     PostPaginationResponse getSortedPostsByPages(Integer pageNumber, Integer pageSize,String sortBy,String sortDir);
-    RandomPostResponse getRandomPost() throws ResourceNotFoundException;
 }

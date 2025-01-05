@@ -11,4 +11,5 @@ public interface LikeRepository extends JpaRepository<Like,Long> {
     Optional<Like> findByUserAndPost(User user, Post post);
 
     long countByPost(Post post);
+    void deleteByPost(Post post);
 }

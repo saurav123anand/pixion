@@ -9,12 +9,14 @@ import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
 import com.geeks.pixion.repositiories.CategoryRepository;
+import com.geeks.pixion.repositiories.LikeRepository;
 import com.geeks.pixion.repositiories.PostRepository;
 import com.geeks.pixion.repositiories.UserRepository;
 import com.geeks.pixion.services.EmailService;
 import com.geeks.pixion.services.PostService;
 import com.geeks.pixion.services.S3Service;
 import com.geeks.pixion.utils.Utils;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,6 +68,8 @@ public class PostServiceImpl implements PostService {
     private EmailService emailService;
     @Autowired
     private RestTemplate restTemplate;
+    @Autowired
+    private LikeRepository likeRepository;
     @Autowired
     private Utils utils;
     @Override
@@ -223,8 +227,11 @@ public class PostServiceImpl implements PostService {
         return posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
     }
     @Override
+    @Transactional
     public ApiResponse deletePost(Long postId) throws ResourceNotFoundException {
         Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
+        // Delete associated likes before deleting the post
+        likeRepository.deleteByPost(post);
         if(post.getMediaUrl()!=null){
             String key=post.getMediaUrl().substring(post.getMediaUrl().lastIndexOf("/")+1);
             if(post.getPostType()==PostType.IMAGE){

@@ -3,28 +3,32 @@ import axios from "axios";
 import "./Hero.css";
 
 const Hero = () => {
-  const [backgroundImage, setBackgroundImage] = useState("");
+  const [mediaUrl, setMediaUrl] = useState(""); // To store the media URL (image/video)
   const [author, setAuthor] = useState(""); // To store the author name
   const [searchType, setSearchType] = useState("photos"); // Default to photos
 
-  // Fetch background image and author from backend API
+  // Fetch background image or video and author from backend API
   useEffect(() => {
-    const fetchBackgroundImage = async () => {
+    const fetchMedia = async () => {
       try {
-        const response = await axios.get("http://localhost:8085/pixion/posts/random");
-        // Set the background image URL from the random API response
-        setBackgroundImage(response.data.mediaUrL);
+        const response = await axios.get(
+          `http://localhost:8085/pixion/posts/random?type=${
+            searchType === "photos" ? "IMAGE" : "VIDEO"
+          }`
+        );
+        console.log(response.data.mediaUrL);
+        setMediaUrl(response.data.mediaUrL);
         setAuthor(response.data.author); // Set the author's name
       } catch (error) {
-        console.error("Error fetching background image:", error);
+        console.error("Error fetching media:", error);
         // Fallback to a default image if the API call fails
-        setBackgroundImage("https://source.unsplash.com/random/1920x1080");
+        setMediaUrl("https://source.unsplash.com/random/1920x1080");
         setAuthor("Unknown Author");
       }
     };
-
-    fetchBackgroundImage();
-  }, []); // Empty dependency array means this runs once when the component mounts
+    console.log(searchType);
+    fetchMedia();
+  }, [searchType]); // Re-run the effect whenever searchType changes
 
   // Handle dropdown change
   const handleDropdownChange = (e) => {
@@ -32,15 +36,36 @@ const Hero = () => {
   };
 
   return (
-    <div
-      className="hero-section"
-      style={{
-        backgroundImage: `url(${backgroundImage})`, // Dynamically set the background image URL
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="hero-section">
+      {searchType === "videos" ? (
+        <video
+          className="hero-background-video"
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            objectFit: "cover", // Ensure the video covers the entire background
+            width: "100%",
+            height: "100%",
+          }}
+        >
+          <source src={mediaUrl} type="video/mp4" />
+        </video>
+      ) : (
+        <div
+          className="hero-background-image"
+          style={{
+            backgroundImage: `url(${mediaUrl})`, // Dynamically set the background image URL
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            width: "100%",
+            height: "100%",
+          }}
+        ></div>
+      )}
+
       <div className="hero-overlay">
         <div className="hero-content">
           <h1>Discover Free Stock Photos & Videos</h1>

@@ -1,12 +1,14 @@
+/* Ensure the hero section takes up the full viewport height */
 .hero-section {
   position: relative;
   width: 100%;
-  height: 100vh;
+  height: 100vh; /* Full viewport height */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
+/* The overlay that makes the text visible on top of the background */
 .hero-overlay {
   position: absolute;
   top: 0;
@@ -17,8 +19,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  z-index: 2; /* Ensure content is above background */
 }
 
+/* Content container for the title and search bar */
 .hero-content {
   color: #fff;
   text-align: center;
@@ -84,4 +88,28 @@
   font-size: 1.2rem;
   font-weight: bold;
   z-index: 2;
+}
+
+/* Styles for the background video */
+.hero-background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Make the video cover the entire background */
+  z-index: 1; /* Ensure the video stays behind the content */
+}
+
+/* Styles for the background image when it's not a video */
+.hero-background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: 1;
 }

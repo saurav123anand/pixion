@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface PostService {
@@ -21,7 +22,7 @@ public interface PostService {
     ApiResponse rejectPost(Long postId) throws ResourceNotFoundException;
     List<PostResponseDto> findAllPendingPosts();
     List<PostResponseDto> findAllApprovedPosts();
-    ApiResponse deletePost(Long postId) throws ResourceNotFoundException;
+    ApiResponse deletePost(Long postId) throws ResourceNotFoundException, AccessDeniedException;
     List<PostResponseDto> getPostsByUser(Long userId) throws ResourceNotFoundException;
     List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException;
     ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException, InvalidThrowException;

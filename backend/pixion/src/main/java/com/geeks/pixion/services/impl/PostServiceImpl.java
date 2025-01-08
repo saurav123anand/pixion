@@ -4,6 +4,7 @@ import com.geeks.pixion.constants.Constants;
 import com.geeks.pixion.constants.PostType;
 import com.geeks.pixion.entities.Category;
 import com.geeks.pixion.entities.Post;
+import com.geeks.pixion.entities.Role;
 import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
@@ -36,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.AccessDeniedException;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -74,8 +76,8 @@ public class PostServiceImpl implements PostService {
     private Utils utils;
     @Override
     public PostResponseDto createPost(PostAddDto postAddDto, MultipartFile file) throws ResourceNotFoundException, IOException {
-        // at later time get the user directly , fetch the currently logged in user from security context instead.
-        User user = userRepository.findById(postAddDto.getUser().getUserId()).orElseThrow(() -> new ResourceNotFoundException("user not found for user id " + postAddDto.getUser().getUserId()));
+        User loggedInUser=utils.getCurrentLoggedInUser();
+        User user = userRepository.findById(loggedInUser.getUserId()).orElseThrow(() -> new ResourceNotFoundException("user not found for user id " + postAddDto.getUser().getUserId()));
         Category category = categoryRepository.findById(postAddDto.getCategory().getCategoryId()).orElseThrow(() -> new ResourceNotFoundException("category not found for category id " + postAddDto.getCategory().getCategoryId()));
         Post post=new Post();
         post.setPostCreationTime(new Date());
@@ -229,8 +231,12 @@ public class PostServiceImpl implements PostService {
     }
     @Override
     @Transactional
-    public ApiResponse deletePost(Long postId) throws ResourceNotFoundException {
+    public ApiResponse deletePost(Long postId) throws ResourceNotFoundException, AccessDeniedException {
+        User loggedInUser=utils.getCurrentLoggedInUser();
         Post post=postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException(Constants.POST_EXCEPTION_MSG + postId));
+        // Check if the logged-in user is either the owner of the post or an admin
+        if (!post.getUser().getUsername().equalsIgnoreCase(loggedInUser.getUsername())
+        && loggedInUser.getRole()!= Role.ADMIN) throw new AccessDeniedException("You do not have permission to delete this post");
         // Delete associated likes before deleting the post
         likeRepository.deleteByPost(post);
         if(post.getMediaUrl()!=null){

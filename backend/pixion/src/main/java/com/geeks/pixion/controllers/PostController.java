@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 @RestController
@@ -56,7 +57,7 @@ public class PostController {
         return postService.rejectPost(postId);
     }
     @DeleteMapping("/delete")
-    public ApiResponse deletePost(@RequestParam Long postId) throws ResourceNotFoundException {
+    public ApiResponse deletePost(@RequestParam Long postId) throws ResourceNotFoundException, AccessDeniedException {
         return postService.deletePost(postId);
     }
     @GetMapping("/download")

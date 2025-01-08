@@ -6,9 +6,13 @@ import com.geeks.pixion.entities.User;
 import com.geeks.pixion.exceptions.EmptyFieldException;
 import com.geeks.pixion.exceptions.InvalidFieldValue;
 import com.geeks.pixion.exceptions.InvalidThrowException;
+import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.AddressDto;
 import com.geeks.pixion.payloads.CategoryAddDto;
 import com.geeks.pixion.payloads.UserUpdateDto;
+import com.geeks.pixion.repositiories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.net.URL;
@@ -16,6 +20,8 @@ import java.util.regex.Pattern;
 
 @Component
 public class Utils {
+    @Autowired
+    private UserRepository userRepository;
     public User validateAndSetFieldValue(UserUpdateDto userDto,User user) throws EmptyFieldException, InvalidFieldValue {
         if(userDto.getFirstName().trim().isEmpty()){
             throw new EmptyFieldException("firstName is empty");
@@ -95,6 +101,12 @@ public class Utils {
             e.printStackTrace();
             throw new InvalidThrowException("Failed to extract file name from URL"+e);
         }
+    }
+    // Method to fetch the currently logged-in user
+    public User getCurrentLoggedInUser() throws ResourceNotFoundException {
+        String loggedInUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(loggedInUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("Logged-in user not found: " + loggedInUsername));
     }
 
 }

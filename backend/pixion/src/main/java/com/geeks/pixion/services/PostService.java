@@ -28,4 +28,5 @@ public interface PostService {
     ResponseEntity<InputStreamResource> downloadPostMedia(Long postId) throws ResourceNotFoundException, InvalidThrowException;
     PostPaginationResponse getPostsByPages(Integer pageNumber, Integer pageSize);
     PostPaginationResponse getSortedPostsByPages(Integer pageNumber, Integer pageSize,String sortBy,String sortDir);
+    List<PostResponseDto> getPostsByCategoryTitle(String categoryTitle);
 }

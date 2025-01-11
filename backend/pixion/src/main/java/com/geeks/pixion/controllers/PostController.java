@@ -96,4 +96,9 @@ public class PostController {
         }
         return postService.getRandomPost(type);
     }
+    @GetMapping("/category/{categoryTitle}")
+    public ResponseEntity<List<PostResponseDto>> getPostsByCategory(@PathVariable String categoryTitle) {
+        List<PostResponseDto> posts = postService.getPostsByCategoryTitle(categoryTitle);
+        return ResponseEntity.ok(posts);
+    }
 }

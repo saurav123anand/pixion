@@ -17,4 +17,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.approved = true AND p.postType = :type ORDER BY RAND() limit 1")
     Optional<Post> findRandomPostByType(@Param("type") PostType type);
+    List<Post> findByCategoryIn(List<Category> categories);
 }

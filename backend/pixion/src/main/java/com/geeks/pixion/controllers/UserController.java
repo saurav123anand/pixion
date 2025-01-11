@@ -92,4 +92,5 @@ public class UserController {
     public Map<String, Object> getFollowersAndFollowing(@PathVariable Long userId) throws ResourceNotFoundException {
         return userService.getFollowersAndFollowing(userId);
     }
+
 }

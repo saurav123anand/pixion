@@ -19,9 +19,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 @Configuration
 @EnableWebSecurity
+@EnableWebMvc
 public class SecurityConfig {
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -34,23 +36,28 @@ public class SecurityConfig {
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(
-                        req->req.requestMatchers("/*/register","/*/login","/*/create","/*/images/generate","/*/random")
-                                .permitAll()
-                                .requestMatchers("/*/approve",
-                                        "/*/pending-posts","/*/approved-posts","/*/reject",
-                                        "/category/","/category/update","/category/byId/**"
-                                        ).hasAuthority("ADMIN")
-                                .anyRequest()
-                                .authenticated()
-                ).userDetailsService(userDetailsService)
-                .exceptionHandling(e->e.accessDeniedHandler(accessDeniedHandler)
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .sessionManagement(session->session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(req -> req
+                        //.requestMatchers("/swagger-ui/**","/v3/api-docs/*").permitAll()
+                        .requestMatchers(
+                                "/*/v3/api-docs/*","/*/register", "/*/login", "/*/create", "/*/images/generate", "/*/random"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/*/approve", "/*/pending-posts", "/*/approved-posts", "/*/reject",
+                                "/category/", "/category/update", "/category/byId/**"
+                        ).hasAuthority("ADMIN")
+                        .anyRequest()
+                        .authenticated()
+                )
+                .userDetailsService(userDetailsService)
+                .exceptionHandling(e -> e
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
-
     }
 
 

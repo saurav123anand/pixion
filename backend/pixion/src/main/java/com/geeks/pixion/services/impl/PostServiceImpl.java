@@ -38,10 +38,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -198,6 +195,17 @@ public class PostServiceImpl implements PostService {
     public List<PostResponseDto> findAllApprovedPosts(){
         List<Post> pendingPosts = postRepository.findByApproved(true);
         return pendingPosts.stream().map(post -> modelMapper.map(post,PostResponseDto.class)).collect(Collectors.toList());
+    }
+    @Override
+    public List<PostResponseDto> getPostsByCategoryTitle(String categoryTitle){
+        List<Category> categories = categoryRepository.findByCategoryTitleContainingIgnoreCase(categoryTitle);
+        if (!categories.isEmpty()) {
+            // Fetch posts related to the matched categories
+            List<Post> posts= postRepository.findByCategoryIn(categories);
+            return posts.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).collect(Collectors.toList());
+        } else {
+            throw new IllegalArgumentException("No categories found with title matching: " + categoryTitle);
+        }
     }
     @Override
     public List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException {

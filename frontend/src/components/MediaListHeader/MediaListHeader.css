@@ -1,0 +1,37 @@
+.media-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    width: 45vw;
+    margin: auto;
+}
+
+.media-list-header button {
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    width: 95px;
+    height: 66px;
+    margin-left: 2%;
+    color: #474545;
+    font-weight: bold;
+    font-size: 15px;
+    background: none;
+    transition: all 0.3s;
+}
+
+.media-list-header button:hover {
+    background-color: #f2f2f2;
+}
+
+.media-list-header button.active {
+    background-color: black;
+    color: white;
+}
+
+@media only screen and (max-width: 600px) {
+    .media-list-header {
+        width: 100%;
+    }
+}

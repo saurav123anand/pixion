@@ -1,0 +1,30 @@
+import axios from "axios";
+
+export const fetchMedia = async (searchType) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8085/pixion/posts/random?type=${
+        searchType === "photos" ? "IMAGE" : "VIDEO"
+      }`
+    );
+    console.log("API Response:", response.data);
+
+    const mediaUrl =
+      response.data.mediaUrL ||
+      (searchType === "photos"
+        ? "https://source.unsplash.com/random/1920x1080"
+        : "https://www.w3schools.com/html/mov_bbb.mp4");
+
+    const author = response.data.author || "Unknown Author";
+
+    return { mediaUrl, author };
+  } catch (error) {
+    console.error("Error fetching media:", error);
+    const fallbackUrl =
+      searchType === "photos"
+        ? "https://source.unsplash.com/random/1920x1080"
+        : "https://www.w3schools.com/html/mov_bbb.mp4";
+
+    return { mediaUrl: fallbackUrl, author: "Unknown Author" };
+  }
+};

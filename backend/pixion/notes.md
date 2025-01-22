@@ -18,3 +18,4 @@ post_id referencing posts.id.
 Database Representation:
 
 likes is the join table with user_id and post_id as foreign keys.
+findByOrderByFirstNameAsc

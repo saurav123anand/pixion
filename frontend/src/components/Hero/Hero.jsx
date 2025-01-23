@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchMedia } from "../../services/mediaService";// Adjust the path as needed
+import {fetchRandomMedia } from "../../services/mediaService";// Adjust the path as needed
 import "./Hero.css";
 
 const Hero = () => {
@@ -9,7 +9,7 @@ const Hero = () => {
 
   useEffect(() => {
     const fetchAndSetMedia = async () => {
-      const { mediaUrl, author } = await fetchMedia(searchType);
+      const { mediaUrl, author } = await fetchRandomMedia(searchType);
       setMediaUrl(mediaUrl);
       setAuthor(author);
     };

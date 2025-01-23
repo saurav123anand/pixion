@@ -1,13 +1,12 @@
 import axios from "axios";
 
-export const fetchMedia = async (searchType) => {
+export const fetchRandomMedia = async (searchType) => {
   try {
     const response = await axios.get(
       `http://localhost:8085/pixion/posts/random?type=${
         searchType === "photos" ? "IMAGE" : "VIDEO"
       }`
     );
-    console.log("API Response:", response.data);
 
     const mediaUrl =
       response.data.mediaUrL ||
@@ -28,3 +27,17 @@ export const fetchMedia = async (searchType) => {
     return { mediaUrl: fallbackUrl, author: "Unknown Author" };
   }
 };
+export const fetchApprovedPostByType = async (postType,pageNumber,pageSize) => {
+    const url="http://localhost:8085/pixion/posts/approved/filter";
+    try{
+       const response=await axios.get(url,{
+        params:{
+          postType,pageNumber,pageSize
+        }
+       });
+       return response.data;
+    }
+    catch(error){
+      console.error("Error fetching media:", error);
+    }
+}

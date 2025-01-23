@@ -1,5 +1,6 @@
 package com.geeks.pixion.services;
 
+import com.geeks.pixion.constants.PostType;
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
@@ -29,4 +30,5 @@ public interface PostService {
     PostPaginationResponse getPostsByPages(Integer pageNumber, Integer pageSize);
     PostPaginationResponse getSortedPostsByPages(Integer pageNumber, Integer pageSize,String sortBy,String sortDir);
     List<PostResponseDto> getPostsByCategoryTitle(String categoryTitle);
+    PostPaginationResponse getApprovedPostsByMediaType(Integer pageNumber, Integer pageSize, PostType postType);
 }

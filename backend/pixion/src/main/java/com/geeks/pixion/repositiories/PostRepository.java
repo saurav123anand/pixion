@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findByApproved(boolean approved);
@@ -18,4 +20,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.approved = true AND p.postType = :type ORDER BY RAND() limit 1")
     Optional<Post> findRandomPostByType(@Param("type") PostType type);
     List<Post> findByCategoryIn(List<Category> categories);
+    Page<Post> findByApprovedAndPostType(boolean approved, PostType postType, Pageable pageable);
 }

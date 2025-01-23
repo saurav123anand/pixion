@@ -40,6 +40,7 @@ import java.io.InputStream;
 import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -207,6 +208,23 @@ public class PostServiceImpl implements PostService {
             throw new IllegalArgumentException("No categories found with title matching: " + categoryTitle);
         }
     }
+
+    @Override
+    public PostPaginationResponse getApprovedPostsByMediaType(Integer pageNumber, Integer pageSize, PostType postType) {
+        Pageable pageable=PageRequest.of(pageNumber,pageSize);
+        Page<Post> postPages = postRepository.findByApprovedAndPostType(true, postType, pageable);
+        List<Post> postPagesContent = postPages.getContent();
+        List<PostResponseDto> posts = postPagesContent.stream().map(post -> modelMapper.map(post, PostResponseDto.class)).toList();
+        PostPaginationResponse postPaginationResponse=new PostPaginationResponse();
+        postPaginationResponse.setPosts(posts);
+        postPaginationResponse.setPageNumber(postPages.getNumber());
+        postPaginationResponse.setPageSize(postPages.getSize());
+        postPaginationResponse.setTotalElements(postPages.getTotalElements());
+        postPaginationResponse.setTotalPages(postPages.getTotalPages());
+        postPaginationResponse.setLastPage(postPages.isLast());
+        return postPaginationResponse;
+    }
+
     @Override
     public List<PostResponseDto> getPostsByCategory(Long categoryId) throws ResourceNotFoundException {
         Category category=categoryRepository.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("Category not found for categoryId "+categoryId));

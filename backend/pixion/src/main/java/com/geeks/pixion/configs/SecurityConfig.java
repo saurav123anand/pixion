@@ -38,10 +38,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers(
-                                "/*/v3/api-docs/*","/*/register", "/*/login", "/*/create", "/*/images/generate", "/*/random"
+                                "/*/v3/api-docs/*","/*/register", "/*/login", "/*/create",
+                                "/*/images/generate", "/*/random","/*/approved-posts","/*/approved/filter/**"
                         ).permitAll()
                         .requestMatchers(
-                                "/*/approve", "/*/pending-posts", "/*/approved-posts", "/*/reject",
+                                "/*/approve", "/*/pending-posts", "/*/reject",
                                 "/category/", "/category/update", "/category/byId/**"
                         ).hasAuthority("ADMIN")
                         .anyRequest()

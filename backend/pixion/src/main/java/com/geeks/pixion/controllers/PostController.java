@@ -2,6 +2,7 @@ package com.geeks.pixion.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.geeks.pixion.constants.Constants;
+import com.geeks.pixion.constants.PostType;
 import com.geeks.pixion.exceptions.InvalidThrowException;
 import com.geeks.pixion.exceptions.ResourceNotFoundException;
 import com.geeks.pixion.payloads.*;
@@ -100,5 +101,15 @@ public class PostController {
     public ResponseEntity<List<PostResponseDto>> getPostsByCategory(@PathVariable String categoryTitle) {
         List<PostResponseDto> posts = postService.getPostsByCategoryTitle(categoryTitle);
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/approved/filter")
+    public ResponseEntity<PostPaginationResponse> getFilteredPosts(
+            @RequestParam PostType postType,
+            @RequestParam(value = "pageNumber",defaultValue = Constants.PAGE_NUMBER,required = false)
+            Integer pageNumber, @RequestParam(value = "pageSize",defaultValue =Constants.PAGE_SIZE,required = false) Integer pageSize ) {
+
+        PostPaginationResponse response = postService.getApprovedPostsByMediaType(pageNumber, pageSize,postType);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

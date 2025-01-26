@@ -28,13 +28,10 @@ export const fetchRandomMedia = async (searchType) => {
   }
 };
 export const fetchApprovedPostByType = async (postType,pageNumber,pageSize) => {
-    const url="http://localhost:8085/pixion/posts/approved/filter";
+    const url=`http://localhost:8085/pixion/posts/approved/filter?postType=${postType}&pageNumber=${pageNumber}&pageSize=${pageSize}`;
     try{
-       const response=await axios.get(url,{
-        params:{
-          postType,pageNumber,pageSize
-        }
-       });
+       const response=await axios.get(url);
+       console.log("Response:",response);
        return response.data;
     }
     catch(error){
